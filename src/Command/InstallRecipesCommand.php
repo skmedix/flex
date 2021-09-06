@@ -41,14 +41,15 @@ class InstallRecipesCommand extends BaseCommand
             ->setAliases(['recipes:install', 'symfony:sync-recipes', 'sync-recipes', 'fix-recipes'])
             ->setDescription('Installs or reinstalls recipes for already installed packages.')
             ->addArgument('packages', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Recipes that should be installed.')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Overwrite existing files when a new version of a recipe is available')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Overwrite existing files when a recipe is available')
+            ->addOption('updated', null, InputOption::VALUE_NONE, 'Reinstall only the recipes that have a pending update')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $win = '\\' === \DIRECTORY_SEPARATOR;
-        $force = $input->getOption('force');
+        $force = (bool) $input->getOption('force');
 
         if ($force && !@is_executable(strtok(exec($win ? 'where git' : 'command -v git'), \PHP_EOL))) {
             throw new RuntimeException('Cannot run "sync-recipes --force": git not found.');
@@ -128,7 +129,7 @@ class InstallRecipesCommand extends BaseCommand
             }
         }
 
-        $this->flex->update(new UpdateEvent($force), $operations);
+        $this->flex->update(new UpdateEvent($force, (bool) $input->getOption('updated')), $operations);
 
         if ($force) {
             $output = [

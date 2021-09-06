@@ -17,15 +17,22 @@ use Composer\Script\ScriptEvents;
 class UpdateEvent extends Event
 {
     private $force;
+    private $updatedRecipesOnly;
 
-    public function __construct(bool $force)
+    public function __construct(bool $force, bool $updatedRecipesOnly)
     {
         $this->name = ScriptEvents::POST_UPDATE_CMD;
         $this->force = $force;
+        $this->updatedRecipesOnly = $updatedRecipesOnly;
     }
 
     public function force(): bool
     {
         return $this->force;
+    }
+
+    public function updatedRecipesOnly(): bool
+    {
+        return $this->updatedRecipesOnly;
     }
 }
